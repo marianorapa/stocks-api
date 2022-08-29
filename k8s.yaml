@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stocks-api
+spec:
+  selector:
+    matchLabels:
+      app: stocks-api
+  template:
+    metadata:
+      labels:
+        app: stocks-api
+    spec:
+      containers:
+        - image: okteto.dev/stocks-api:1.0.0
+          name: stocks-api
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: stocks-api
+spec:
+  type: ClusterIP
+  ports:
+    - name: "stocks-api"
+      port: 8080
+  selector:
+    app: stocks-api
+
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: stocks-api
+  annotations:
+    dev.okteto.com/generate-host: stocks-api
+spec:
+  rules:
+    - http:
+        paths:
+          - backend:
+              service:
+                name: stocks-api
+                port:
+                  number: 8080
+            path: /
+            pathType: ImplementationSpecific
